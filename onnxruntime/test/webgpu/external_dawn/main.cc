@@ -51,6 +51,9 @@ int main(int argc, char* argv[]) {
     std::unordered_map<std::string, std::string> provider_options;
     if (!no_proc_table) {
       provider_options["dawnProcTable"] = std::to_string(reinterpret_cast<size_t>(&dawn::native::GetProcs()));
+#if defined(_WIN32) && defined(ENABLE_D3D12_FILE_LOADING)
+      provider_options["weightLoadAcceleration"] = "preferred";
+#endif
     }
     if (plugin_path.empty()) {
       session_options.AppendExecutionProvider("WebGPU", provider_options);
