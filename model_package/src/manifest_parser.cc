@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cerrno>
 #include <cstring>
 #include <fstream>
@@ -450,12 +451,8 @@ ModelPackageStatus* ParseSchemaVersion(ModelPackage* pkg) {
     const std::string minor_str = (dot == std::string::npos) ? std::string("0") : sv.substr(dot + 1);
     auto parse_part = [](const std::string& s, int64_t* out) -> bool {
       if (s.empty() || s.find_first_not_of("0123456789") != std::string::npos) return false;
-      try {
-        *out = std::stoll(s);
-      } catch (const std::exception&) {
-        return false;
-      }
-      return true;
+      const auto [end, error] = std::from_chars(s.data(), s.data() + s.size(), *out);
+      return error == std::errc{} && end == s.data() + s.size();
     };
     if (dot != std::string::npos && minor_str.find('.') != std::string::npos) {
       return MakeStatus(MODEL_PACKAGE_ERR_SCHEMA,
