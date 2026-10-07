@@ -273,9 +273,11 @@ if (CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 13.0)
   )
 
   if (MSVC)
-    # Suppress unrecognized __pragma warnings emitted from CUDA headers in device code.
+    # Suppress diagnostics from CUDA 13 headers: unrecognized __pragma in device code,
+    # and CCCL's unmatched #pragma warning(pop) in the MSVC host compiler.
     list(APPEND _cuda_plugin_shared_compile_options
         "$<$<COMPILE_LANGUAGE:CUDA>:--diag-suppress=20199>"
+        "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler /wd4193>"
     )
   endif()
 endif()
